@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <h3> Enter your Name to create a virtual gamepad on Server</h3>
+    <form action="{{ url_for('stick') }}" method="post">
+            <input type="text" name="Name">
+            <input type="submit" value="Connect!">
+            <p id="result"></p>
+    </form>
+<script>
+
+<!-- document.getElementById("result").innerHTML = "{{result}}">
+
+<!-- var connection = new WebSocket('ws://localhost:8001');>
+console.log("Result");
+console.log("{{result}}");
+if ("{{result}}" === "")console.log("Disconnected");
+else console.log("Connected");
+
+if ("{{result}}" === "") document.getElementById("result").innerHTML ="Disconnected";
+else document.getElementById("result").innerHTML ="Connected, use arrow keys and 1/2 for buttons";
+
+const connection = new WebSocket('ws://' + location.host + '/echo');
+
+var client_id=parseInt("{{result}}")
+var joyval = 0;
+
+
+
+if (!isNaN(client_id))document.addEventListener("keydown",event => {
+<!--    console.log(event.keyCode);>
+<!--    if (event.key === "ArrowUp") joyval = joyval | 1;>
+    if (event.keyCode==38) joyval = joyval | 1;
+    if (event.keyCode==40) joyval = joyval | 2; 
+    if (event.keyCode==37) joyval = joyval | 4;
+    if (event.keyCode==39) joyval = joyval | 8;            
+    if (event.keyCode==49) joyval = joyval | 16;
+    if (event.keyCode==50) joyval = joyval | 32;    
+<!--     console.log(joyval);>
+    connection.send(joyval+client_id);
+})
+
+if (!isNaN(client_id))document.addEventListener("keyup",event => {
+<!--    console.log(event.keyCode);>
+    if (event.keyCode==38) joyval = joyval & ~1;
+    if (event.keyCode==40) joyval = joyval & ~2; 
+    if (event.keyCode==37) joyval = joyval & ~4;
+    if (event.keyCode==39) joyval = joyval & ~8;            
+    if (event.keyCode==49) joyval = joyval & ~16;
+    if (event.keyCode==50) joyval = joyval & ~32;    
+<!--    console.log(joyval);>
+    connection.send(joyval+client_id);
+})
+
+</script>
+</body>
+</html>

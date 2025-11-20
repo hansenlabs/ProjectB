@@ -1,0 +1,5 @@
+jsmon/jsmon
+key2joy/key2joy
+.venv/*
+scripts/setup-wine-devel.sh
+scripts/wine-devel.ini
