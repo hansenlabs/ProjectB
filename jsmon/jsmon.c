@@ -21,7 +21,7 @@
 #define AXIS_ACTIVE_THRESHOLD 16000
 #define SCAN_INTERVAL_MS 500
 #define RENDER_INTERVAL_MS 10
-#define GESTURE_DUR 4
+#define GESTURE_DUR 3
 
 #define CLR_RESET "\x1b[0m"
 #define CLR_GRAY  "\x1b[90m"
@@ -115,7 +115,44 @@ static void* js_thread(void *arg) {
                 d->gesture_down_1=1;
             }
             else d->gesture_down_1=0;
-            d->gesture=(d->gesture_up_1 || d->gesture_down_1);
+
+            if ((d->axes[1]<0)&&(d->buttons[1])) {
+                if (!d->gesture_up_2)clock_gettime(CLOCK_MONOTONIC, &(d->gesture_start));
+                d->gesture_up_2=1;
+            }
+            else d->gesture_up_2=0;
+
+            if ((d->axes[1]>0)&&(d->buttons[1])) {
+                if (!d->gesture_down_2)clock_gettime(CLOCK_MONOTONIC, &(d->gesture_start)); 
+                d->gesture_down_2=1;
+            }
+            else d->gesture_down_2=0;
+
+            if ((d->axes[0]<0)&&(d->buttons[0])) {
+                if (!d->gesture_left_1)clock_gettime(CLOCK_MONOTONIC, &(d->gesture_start));
+                d->gesture_left_1=1;
+            }
+            else d->gesture_left_1=0;
+
+            if ((d->axes[0]>0)&&(d->buttons[0])) {
+                if (!d->gesture_right_1)clock_gettime(CLOCK_MONOTONIC, &(d->gesture_start)); 
+                d->gesture_right_1=1;
+            }
+            else d->gesture_right_1=0;
+
+            if ((d->axes[0]<0)&&(d->buttons[1])) {
+                if (!d->gesture_left_2)clock_gettime(CLOCK_MONOTONIC, &(d->gesture_start));
+                d->gesture_left_2=1;
+            }
+            else d->gesture_left_2=0;
+
+            if ((d->axes[0]>0)&&(d->buttons[1])) {
+                if (!d->gesture_right_2)clock_gettime(CLOCK_MONOTONIC, &(d->gesture_start)); 
+                d->gesture_right_2=1;
+            }
+            else d->gesture_right_2=0;
+
+            d->gesture=(d->gesture_up_1 || d->gesture_down_1 || d->gesture_left_1 || d->gesture_right_1 || d->gesture_up_2 || d->gesture_down_2 || d->gesture_left_2 || d->gesture_right_2);
 
             pthread_mutex_unlock(&lock);
         } else {
@@ -167,7 +204,7 @@ static void scan_devices() {
     while ((e = readdir(dir)) != NULL) {
         if (strncmp(e->d_name, JS_PREFIX, 2) != 0) continue;
 
-        char fullpath[256];
+        char fullpath[300];
         snprintf(fullpath, sizeof(fullpath), "%s/%s", DEV_DIR, e->d_name);
 
         int known = 0;
@@ -198,6 +235,12 @@ static void render() {
 
         if ((d->gesture_up_1)&&(dt>GESTURE_DUR))exit(10);
         if ((d->gesture_down_1)&&(dt>GESTURE_DUR))exit(11);
+        if ((d->gesture_left_1)&&(dt>GESTURE_DUR))exit(12);
+        if ((d->gesture_right_1)&&(dt>GESTURE_DUR))exit(13);
+        if ((d->gesture_up_2)&&(dt>GESTURE_DUR))exit(14);
+        if ((d->gesture_down_2)&&(dt>GESTURE_DUR))exit(15);
+        if ((d->gesture_left_2)&&(dt>GESTURE_DUR))exit(16);
+        if ((d->gesture_right_2)&&(dt>GESTURE_DUR))exit(17);
 
         const char *name = d->name;
         char shortname[DEVICE_COL_WIDTH+1];

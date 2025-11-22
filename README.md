@@ -4,7 +4,7 @@
 
 Play Atomic Bomberman with up to 10 keyboards on X86 and Raspi 4+.
 
-You wanna know whether it is worth reading for you, check TODO. 
+You wanna know whether it is worth reading for you, check TODO-Make Video from Result. 
 
 This project provides detailled information about running multiplayer games, specifically Atomic Bomberman, on Linux based systems with local massive multiplayer option by connecting 10 USB Keyboards. Beside x86 based systems, thanks to Wine-Hangover it is possible to use RasPi 4 (and probably but untested 5)
 This repo provides tools, patches and ressources to do so. Feel free to use & modify it for other games. These instructions are tested on Ubuntu 24.04 (Ubuntu on Raspi 25.04), if you use another linux OS, you are probably capable of porting these instructions.
@@ -177,6 +177,8 @@ Clone Wine, checkout a stable branch (10.18) and patch or replace the joystick.c
 
 https://gitlab.winehq.org/wine/wine/-/wikis/Building-Wine#plain-vanilla-compiling
 
+WARNING: NOT RECOMMENDED TO RUN THE FOLLOWING COMMANDS INSIDE VSCODE TERMINAL, FOR SOME REASON THE DISTRO IS NOT VISIBLE/AUSABLE IN STANDARD TERMINAL. It seems to store the image inside ~/snap/code/.. where it is not found.
+
 So you might want to do something like:
 ```
 $ sudo apt install distrobox
@@ -194,37 +196,42 @@ $ cp /full_path_to/ProjectB/wine_patch/joystick.c ./dlls/winmm/joystick.c #note 
 $ mkdir wine64-build
 $ cd wine64-build
 $ ../configure --enable-win64
-$ ../make 
+$ make 
 # or for example make -j4
 $ mkdir wine32-build
 $ cd wine32-build
 $ PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu ../configure --with-wine64=../wine64-build
+$ make
 ```
 
+Now you have a Wine executable in your build directory.
 As distrobox by default mounts/shares the home directory and uses the same UID, you can access the files natively and from container. 
 
 You can even run it from the container as well as from host (if host OS is the same as the containerized OS, tested 24.04). Running inside container should work even with different systems (untested).
 
 You then do something like:
+```
 cd ~/path/to/AtomicBomberman
-WINEDLLOVERRIDES="ddraw.dll=n" ~/path/to/wine/build_64/wine ./BM.exe (on Wayland)
+WINEDLLOVERRIDES="ddraw.dll=n" ~/path/to/wine/wine64-build/wine ./BM.exe (on Wayland)
+```
 
 # Raspberry
 
-You want to build the ultimate multiplayer party machine? Lets go! 
-We will be doing a custom Wine-Hangover build for Ubuntu 25.10.
+You want to build the ultimate multiplayer console? Lets go! 
+We will be doing a custom Wine-Hangover build for Ubuntu 25.04.
 
 https://github.com/AndreRH/hangover
 
-This software is a modified version of Wine, where all the Wine components are compiled for ARM64 and during runtime only the Windows Application itself is emulated through either Box64 oder FEX. Default for 32 bit exe is Box86, anyway chosing FEX crashes with Atomic Bomberman in the Wine 10.14 Build. 
+This software is a modified version of Wine, where all the Wine components are compiled for ARM64 and during runtime only the Windows Application itself is emulated through either Box86 oder FEX. Default for 32 bit exe is Box86, anyway chosing FEX crashes with Atomic Bomberman in the Wine 10.14 Build. 
 
 Basically you can install all .deb files like instructed and should be able to start Bomberman like mentioned above.
-Only one of those needs to be rebuilded.
+Only one of those should be rebuild.
 
 Cross-build instructions are a bit hidden in 
 https://github.com/AndreRH/hangover/blob/master/.github/workflows/deb.yml
 
 I Created a script that basically does the same for the specific package on Ubuntu 25.04 (make sure that you have a working Docker installation).
+Copy scripts/docker_build_wine_hangover_25_04.sh to the hangover directory, replace joystick.c from the ./wine/dlls/winmm subdirectory with the one from wine_patch, and run the docker build script. (Assuming that docker run hello-world will work on your system). This script copies the deb file from the docker image to the working directory. Copy it to your RasPi and install it over the official build. (dpkg ....)
 
 What you do is:
 ```
@@ -234,16 +241,15 @@ $ git submodule update --init --recursive
 # Checkout specific tag
 $ git checkout hangover-10.18
 $ cp ~/path_to/ProjectB/wine_patch/joystick.c ./wine/dlls/winmm/joystick.c
-$ cp ~/path_to/ProjectB/scripts/docker_build_wine_hangover_25_04.sh ./wine/dlls/winmm/joystick.c
+$ cp ~/path_to/ProjectB/scripts/docker_build_wine_hangover_25_04.sh .
 $ ./docker_build_wine_hangover_25_04.sh
 ```
-Copy scripts/docker_build_wine_hangover_25_04.sh to the hangover directory, replace joystick.c from the wine/../../.. subdirectory with the one from wine_patch, and run the docker build script. (Assuming that docker run hello-world will work on your system). This script copies the deb file from the docker image to the working directory. Copy it to your RasPi and install it over the official build. (dpkg ....)
 
 Note that I recommend to run it "bare metal" with just openbox, see instructions above. 
 
 # Jsmon (Incomplete)
 
-Jsmon is a command line tool intended to pre-check all joystick names and buttons. Device list should update in realtime. It shall also end itself by keeping a button + axis pressed for 5 seconds and output a specific return value (depending on direction / button combo). We will later catch that value by a script and have an autostart / zero-command-line-image - hopefully later.
+Jsmon is a command line tool intended to pre-check all joystick names and buttons. Device list should update in realtime. It shall also end itself by keeping a button + axis pressed for 5 seconds and output a specific return value (depending on direction / button combo). We will later catch that value by a script and have the base fore an autostart / zero-command-line-image - hopefully later.
 
 # Web2Joy (Beta)
 
