@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -pthread
+CFLAGS = -lncursesw -pthread
 TARGET = jsmon
 SRC = jsmon.c
 

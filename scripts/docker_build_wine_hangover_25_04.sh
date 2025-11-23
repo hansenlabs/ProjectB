@@ -28,7 +28,7 @@ docker build --no-cache -t wine${MATRIX_OS} .
 #hangover-wine_10.14~plucky_arm64.deb 
 NAME_OF_DEB="hangover-wine_${HOVERSION}~${MATRIX_CODENAME}_arm64.de"
 
-#if an older manually instance of dummy is running...
+#if an older manually instance of dummy is running, remove it...
 docker rm -f dummy
 docker create --name dummy wineubuntu2504
 #docker cp dummy:/opt/hangover-wine_10.18~plucky_arm64.deb ./
