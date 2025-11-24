@@ -234,8 +234,8 @@ static void setup_ncurses() {
     use_default_colors();
     keypad(stdscr, TRUE); 
 
-    init_color(8, 300, 300, 300); 
-    init_pair(CP_DIM, 8, -1);
+    init_color(8, 600, 600, 600); 
+    init_pair(CP_DIM, COLOR_GREEN, -1);
     init_pair(CP_ACTIVE, COLOR_WHITE, -1);
     init_pair(CP_HEADER, COLOR_CYAN, -1);
     init_pair(CP_TITLE, COLOR_YELLOW, -1);
