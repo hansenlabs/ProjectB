@@ -244,18 +244,19 @@ static void setup_ncurses() {
 static void draw_ui() {
     erase();
     attron(COLOR_PAIR(CP_TITLE) | A_BOLD);
-    mvprintw(0, 2, "Connect Keyboards,Gamepads, check layout, hold Up+B1 to start! (F1 toggle Help)");
+    mvprintw(0, 1, "Connect Keyboards,Gamepads, check layout, hold Up+B1 to start! (F1 toggle Help)");
     attroff(COLOR_PAIR(CP_TITLE) | A_BOLD);
     int y = 3;
     if (toggle_help){
       attron(COLOR_PAIR(CP_HEADER));
       //mvprintw(2, 2, "Hotplug folder: %s", DEV_DIR);
       //mvprintw(3, 2, "Hold Up+B1 for gesture actions (configurable)");
-      mvprintw(y++, 2, "Change Key2Joy Name by typing(hit and release): LCTRL,n,y,o,u,r,n,a,m,e,LCTRL");
-      mvprintw(y++, 2, "Change Key2Joy Layout by typing(hit and release): LCTRL,up,down,left,right,B1,B2,LCTRL");
-      mvprintw(y++, 2, "Default Key2Joy Layout: Arrow Keys, Number 1, Number 2 (classical numbers, not numpad)");
-      mvprintw(y++, 2, "Toggle Key2Joy mute / unmute to prevent double events in game menu by pressing LCTRL");
-      mvprintw(y++, 2, "Gestures Up+B1 - Atomic Bomberman; Down+B2 Safe Shutdown; Right+B2 Exit to Terminal");
+      mvprintw(y++, 2, "Change Key2Joy Name type: LCTRL,n,y,o,u,r,n,a,m,e,LCTRL");
+      mvprintw(y++, 2, "Change Key2Joy Layout: type: LCTRL,k,up,down,left,right,B1,B2,LCTRL");
+      mvprintw(y++, 2, "Default Layout: Arrow Keys, Number 1, Number 2 (left ones, not numpad)");
+      mvprintw(y++, 2, "Toggle Key2Joy mute / unmute LCTRL (prevent double events)");
+      mvprintw(y++, 2, "Gestures Up+B1 - Atomic Bomberman; Down+B2 Safe Shutdown; Right+B2 Terminal");
+      mvprintw(y++, 2, "Type=Hit/release 1 key at time; Gestures: keep 2 pressed.");
       attroff(COLOR_PAIR(CP_HEADER));
       y++;
     }

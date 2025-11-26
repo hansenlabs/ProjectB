@@ -249,7 +249,12 @@ Note that I recommend to run it "bare metal" with just openbox, see instructions
 
 # Jsmon (Incomplete)
 
-Jsmon is a command line tool intended to pre-check all joystick names and buttons. Device list should update in realtime. It shall also end itself by keeping a button + axis pressed for 5 seconds and output a specific return value (depending on direction / button combo). We will later catch that value by a script and have the base fore an autostart / zero-command-line-image - hopefully later.
+Jsmon is a command line tool intended to pre-check all joystick names and buttons. Device list should update in realtime. It shall also end itself by keeping a button + axis pressed for 2 seconds and output a specific return value (depending on direction / button combo). We will later catch that value by a script and have the base fore an autostart / zero-command-line-image - hopefully later.
+
+```
+sudo apt install libncurses5-dev libncursesw5-dev
+make
+```
 
 # Web2Joy (Beta)
 
