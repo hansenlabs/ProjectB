@@ -31,6 +31,9 @@
 #define CP_ACTIVE 2
 #define CP_HEADER 3
 #define CP_TITLE 4
+#define CP_BACK 5
+#define CP_PRESSED 6
+#define CP_RELEASED 7
 
 /*
 #define SYM_UP    "\u25B2"
@@ -239,6 +242,110 @@ static void setup_ncurses() {
     init_pair(CP_ACTIVE, COLOR_WHITE, -1);
     init_pair(CP_HEADER, COLOR_CYAN, -1);
     init_pair(CP_TITLE, COLOR_YELLOW, -1);
+    init_pair(CP_BACK, COLOR_WHITE, COLOR_BLUE);
+    init_pair(CP_PRESSED, COLOR_BLACK, COLOR_WHITE);
+    init_pair(CP_RELEASED, COLOR_WHITE, COLOR_BLACK);
+}
+
+void draw_button(int by, int bx, int pressed, char label){
+        for (int iy=0; iy<2; iy++) {
+            for (int ix=0; ix<2; ix++) {
+                if (pressed)
+                    attron(COLOR_PAIR(CP_PRESSED));  // weiß
+                else
+                    attron(COLOR_PAIR(CP_RELEASED));  // schwarz
+
+                mvaddch(by + iy, bx + ix, label);
+
+                if (pressed)
+                    attroff(COLOR_PAIR(CP_PRESSED));
+                else
+                    attroff(COLOR_PAIR(CP_RELEASED));
+            }
+        }
+    };
+
+void draw_gamepad(
+    int y, int x,                 // Position oben links
+    const char *name,             // Joystick-Name
+    int ax_x, int ax_y,           // Achsenwerte -32767..32767
+    int btn1, int btn2            // Buttons 0/1
+) {
+    int width = 20;
+    int height = 5;
+
+    // Hintergrund blau
+    attron(COLOR_PAIR(CP_BACK));
+    for (int i = 0; i < height; i++) {
+        mvhline(y + i, x, ' ', width);
+    }
+    
+
+    // Name zentriert
+    int name_x = x + (width - (int)strlen(name)) / 2;
+    if (name_x<x)name_x=x;
+    mvprintw(y, name_x, "%.*s", width, name);
+    attroff(COLOR_PAIR(CP_BACK));
+    // ---- Steuerkreuz links ----
+    // Zentrum bei (y+4, x+4)
+    int cy = y + 2;
+    int cx = x + 2;
+
+    // Achsen interpretieren
+    int up    = (ax_y < -10000);
+    int down  = (ax_y >  10000);
+    int left  = (ax_x < -10000);
+    int right = (ax_x >  10000);
+
+    // Jede Fläche zeichnen: schwarz oder weiß
+    int dirs[5][2] = {
+        {cy,     cx},     // Mitte
+        {cy-1,   cx},     // oben
+        {cy+1,   cx},     // unten
+        {cy,     cx-1},   // links
+        {cy,     cx+1}    // rechts
+    };
+
+    attron(COLOR_PAIR(CP_RELEASED)); // Schwarz
+    mvaddch(dirs[0][0], dirs[0][1], ' '); // Mitte
+    attroff(COLOR_PAIR(CP_RELEASED));
+
+    // oben
+    attron(COLOR_PAIR(up ? CP_PRESSED : CP_RELEASED));
+    mvaddch(dirs[1][0], dirs[1][1], ' ');
+    attroff(COLOR_PAIR(up ? CP_PRESSED : CP_RELEASED));
+
+    // unten
+    attron(COLOR_PAIR(down ? CP_PRESSED : CP_RELEASED));
+    mvaddch(dirs[2][0], dirs[2][1], ' ');
+    attroff(COLOR_PAIR(down ? CP_PRESSED : CP_RELEASED));
+
+    // links
+    attron(COLOR_PAIR(left ? CP_PRESSED : CP_RELEASED));
+    mvaddch(dirs[3][0], dirs[3][1], ' ');
+    attroff(COLOR_PAIR(left ? CP_PRESSED : CP_RELEASED));
+
+    // rechts
+    attron(COLOR_PAIR(right ? CP_PRESSED : CP_RELEASED));
+    mvaddch(dirs[4][0], dirs[4][1], ' ');
+    attroff(COLOR_PAIR(right ? CP_PRESSED : CP_RELEASED));
+
+
+    // ---- Buttons rechts ----
+
+    // Button 1
+    int b1_y = y + 2;
+    int b1_x = x + width - 8;
+
+    // Button 2
+    int b2_y = y + 1;
+    int b2_x = x + width - 4;
+
+    // Zeichne Button (2x2)
+    
+
+    draw_button(b1_y, b1_x, btn1, '1');
+    draw_button(b2_y, b2_x, btn2, '2');
 }
 
 static void draw_ui() {
@@ -265,37 +372,58 @@ static void draw_ui() {
     mvprintw(y++, 2, "Devices:");
     y++;
     //pthread_mutex_lock(&dev_lock);
+    int start_y=y;
     
     struct timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
-
+    int x =2;
     for (int i = 0; i < dev_count; ++i) {
         struct jsdev *d = devs[i];
         double dt = (now.tv_sec - d->gesture_start.tv_sec) + (now.tv_nsec - d->gesture_start.tv_nsec)/1e9;
-
-        mvprintw(y, 2, "%-20.20s", d->name);
-
-        int up = d->axis[1] < -AXIS_THRESHOLD;
-        int down = d->axis[1] > AXIS_THRESHOLD;
-        int left = d->axis[0] < -AXIS_THRESHOLD;
-        int right = d->axis[0] > AXIS_THRESHOLD;
-
-        // arrows
-        attron(COLOR_PAIR(up?CP_ACTIVE:CP_DIM)); mvprintw(y, 25, "%s",SYM_UP); attroff(COLOR_PAIR(up?CP_ACTIVE:CP_DIM));
-        attron(COLOR_PAIR(down?CP_ACTIVE:CP_DIM)); mvprintw(y, 27, "%s",SYM_DOWN); attroff(COLOR_PAIR(down?CP_ACTIVE:CP_DIM));
-        attron(COLOR_PAIR(left?CP_ACTIVE:CP_DIM)); mvprintw(y, 29, "%s",SYM_LEFT); attroff(COLOR_PAIR(left?CP_ACTIVE:CP_DIM));
-        attron(COLOR_PAIR(right?CP_ACTIVE:CP_DIM)); mvprintw(y, 31, "%s",SYM_RIGHT); attroff(COLOR_PAIR(right?CP_ACTIVE:CP_DIM));
-
-        // buttons
-        attron(COLOR_PAIR(d->btn[0]?CP_ACTIVE:CP_DIM)); mvprintw(y, 35, "[B1]"); attroff(COLOR_PAIR(d->btn[0]?CP_ACTIVE:CP_DIM));
-        attron(COLOR_PAIR(d->btn[1]?CP_ACTIVE:CP_DIM)); mvprintw(y, 39, "[B2]"); attroff(COLOR_PAIR(d->btn[1]?CP_ACTIVE:CP_DIM));
-
-        // gesture indicator
-        if (d->gesture&&(dt>0.5)) {
-            mvprintw(y, 44, "Gesture Countdown %f",(GESTURE_DUR-dt));
-        } else {
-            mvprintw(y, 44, " ");
+        if(42){
+          if (d->gesture&&(dt>0.5)) {
+            char temp[64];
+            sprintf(temp,"Gesture %.02f",(GESTURE_DUR-dt));
+            draw_gamepad(y,x,temp,d->axis[0], d->axis[1], d->btn[0], d->btn[1]);
+          } else {
+            draw_gamepad(y,x,d->name,d->axis[0], d->axis[1], d->btn[0], d->btn[1]);
+          }
+          
+          y=y+6;
+          if ((y+5)>LINES){
+            y=start_y;
+            x=x+22;
+          }
         }
+
+        else{
+          mvprintw(y, 2, "%-20.20s", d->name);
+
+          int up = d->axis[1] < -AXIS_THRESHOLD;
+          int down = d->axis[1] > AXIS_THRESHOLD;
+          int left = d->axis[0] < -AXIS_THRESHOLD;
+          int right = d->axis[0] > AXIS_THRESHOLD;
+
+          // arrows
+          attron(COLOR_PAIR(up?CP_ACTIVE:CP_DIM)); mvprintw(y, 25, "%s",SYM_UP); attroff(COLOR_PAIR(up?CP_ACTIVE:CP_DIM));
+          attron(COLOR_PAIR(down?CP_ACTIVE:CP_DIM)); mvprintw(y, 27, "%s",SYM_DOWN); attroff(COLOR_PAIR(down?CP_ACTIVE:CP_DIM));
+          attron(COLOR_PAIR(left?CP_ACTIVE:CP_DIM)); mvprintw(y, 29, "%s",SYM_LEFT); attroff(COLOR_PAIR(left?CP_ACTIVE:CP_DIM));
+          attron(COLOR_PAIR(right?CP_ACTIVE:CP_DIM)); mvprintw(y, 31, "%s",SYM_RIGHT); attroff(COLOR_PAIR(right?CP_ACTIVE:CP_DIM));
+
+          // buttons
+          attron(COLOR_PAIR(d->btn[0]?CP_ACTIVE:CP_DIM)); mvprintw(y, 35, "[B1]"); attroff(COLOR_PAIR(d->btn[0]?CP_ACTIVE:CP_DIM));
+          attron(COLOR_PAIR(d->btn[1]?CP_ACTIVE:CP_DIM)); mvprintw(y, 39, "[B2]"); attroff(COLOR_PAIR(d->btn[1]?CP_ACTIVE:CP_DIM));
+
+          // gesture indicator
+          if (d->gesture&&(dt>0.5)) {
+            mvprintw(y, 44, "Gesture %.02f",(GESTURE_DUR-dt));
+          } else {
+            mvprintw(y, 44, " ");
+          }
+          y++;
+        }
+
+
 
         // gesture timeout actions
         if (d->gesture) {
@@ -317,12 +445,10 @@ static void draw_ui() {
             //  return; 
             //}
         }
-
-        y++;
     }
 
     // fill rest
-    for (; y < 18; ++y) mvprintw(y, 2, " ");
+    //for (; y < 18; ++y) mvprintw(y, 2, " ");
 
     //pthread_mutex_unlock(&dev_lock);
 

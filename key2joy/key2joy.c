@@ -331,6 +331,7 @@ void *K2Jinstance(void *argument)
 		  }
 		  else {
 		    muted=1;
+        wasted=-1;
 		    store_led (fdw, &led_num, &led_caps, &led_scroll);
    		    lightall(fdw, is_apple_wireless);
 		  }
