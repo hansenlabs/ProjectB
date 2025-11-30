@@ -25,9 +25,10 @@ Keep the terminal alive. Key2joy supports hotplugging, but Atomic Bomberman does
 
 ### Muting
 
-In-game menus will receive double events, once from keyboard, once from the virtual joystick. 
-Mute it by Press & Release left Ctrl. -->KB lights will come up 
-Unmute it by Press & Release left Ctrl again. -->KB lights return to initial state 
+In-game menus will receive double events, once from keyboard, once from the virtual joystick.
+
+* Mute it by Press & Release left Ctrl. -->KB lights will come up. 
+* Unmute it by Press & Release left Ctrl again. -->KB lights return to initial state 
 
 ### Assigning Keyboard Layout
 
