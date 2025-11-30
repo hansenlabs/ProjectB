@@ -1,7 +1,8 @@
 # ProjectB
 
+Play Atomic Bomberman with up to 10 keyboards on X86/Linux and Raspi 4+.
 
-Play Atomic Bomberman with up to 10 keyboards on X86 and Raspi 4+.
+![Screenshot of bomberman with renamed joysticks.](media/screenshot.png?raw=true)
 
 This project provides information about running multiplayer games, specifically Atomic Bomberman, on Linux based systems with local massive multiplayer option by connecting 10 USB Keyboards. Beside x86 based systems, thanks to Wine-Hangover it is possible to use RasPi 4 (and probably but untested 5)
 This repo provides tools, patches and ressources to do so. Feel free to use & modify it for other games. These instructions are tested on Ubuntu 24.04 (Ubuntu on Raspi 25.04), if you use another linux OS, you are probably capable of porting these instructions.
@@ -18,7 +19,7 @@ make
 sudo ./key2joy 
 ```
 
-should do the job. Keep the terminal alive.
+should do the job. Keep the terminal alive. Key2joy supports hotplugging, but Atomic Bomberman does not.
 
 ## Special functions
 
@@ -30,10 +31,10 @@ Unmute it by Press&Release left Ctrl again. -->KB lights return to initial state
 
 ### Assigning Keyboard Layout
 
-Mute it by Press&Release left Ctrl. -->KB lights will come up 
-Hit (Press&Release) K
-Hit Keys for Up, Down, Left, Right, Button 1 (place bombs), Button 2 (trigger bomb, boxing glove) in that order
-Unmute it by Press&Release left Ctrl again. -->KB lights return to initial state 
+* Mute it by Press&Release left Ctrl. -->KB lights will come up 
+* Hit (Press&Release) K
+* Hit Keys for Up, Down, Left, Right, Button 1 (place bombs), Button 2 (trigger bomb, boxing glove) in that order
+* Unmute it by Press&Release left Ctrl again. -->KB lights return to initial state 
 
 New Layout is stored for that Keyboard. 
 Note: 
@@ -174,7 +175,7 @@ Clone Wine, checkout a stable branch (10.18) and patch or replace the joystick.c
 
 https://gitlab.winehq.org/wine/wine/-/wikis/Building-Wine#plain-vanilla-compiling
 
-WARNING: NOT RECOMMENDED TO RUN THE FOLLOWING COMMANDS INSIDE VSCODE TERMINAL, FOR SOME REASON THE DISTRO IS NOT VISIBLE/AUSABLE IN STANDARD TERMINAL. It seems to store the image inside ~/snap/code/.. where it is not found.
+WARNING: NOT RECOMMENDED TO RUN THE FOLLOWING COMMANDS INSIDE VSCODE TERMINAL, FOR SOME REASON THE DISTRO IS NOT VISIBLE / USABLE IN STANDARD TERMINAL. It seems to store the image inside ~/snap/code/.. where it is not found.
 
 So you might want to do something like:
 ```
@@ -256,6 +257,8 @@ make
 ./loop_jsmon.sh
 ```
 
+![Jsmon Screenshot](media/MenuCustomNames.png)
+
 # Web2Joy (Beta)
 
 Not enough keyboards / USB Hubs, but some laptops around? No need to install any software, a Webbrowser is all you need.
@@ -282,7 +285,7 @@ On your client, use a webbrowser to connect to http://IP.AD.DR.ESS:5000/stick (d
 
 ## Background
 
-In a time, when a friend and I were supposed to write our thesis', we improved our Bomberman skills to a level we were par. We came to the situation where the keyboard player always won against the gamepad player. The idea was born to connect two or more keyboards to one PC. 
+In a time, when a friend and I were supposed to write our theses, we improved our Bomberman skills to a level we were par. We came to the situation where the keyboard player always won against the gamepad player. The idea was born to connect two or more keyboards to one PC. 
 
 ## Facts 
 
