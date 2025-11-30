@@ -1,12 +1,9 @@
 # ProjectB
 
-# WIP, incomplete and only partially functional
 
 Play Atomic Bomberman with up to 10 keyboards on X86 and Raspi 4+.
 
-You wanna know whether it is worth reading for you, check TODO-Make Video from Result. 
-
-This project provides detailled information about running multiplayer games, specifically Atomic Bomberman, on Linux based systems with local massive multiplayer option by connecting 10 USB Keyboards. Beside x86 based systems, thanks to Wine-Hangover it is possible to use RasPi 4 (and probably but untested 5)
+This project provides information about running multiplayer games, specifically Atomic Bomberman, on Linux based systems with local massive multiplayer option by connecting 10 USB Keyboards. Beside x86 based systems, thanks to Wine-Hangover it is possible to use RasPi 4 (and probably but untested 5)
 This repo provides tools, patches and ressources to do so. Feel free to use & modify it for other games. These instructions are tested on Ubuntu 24.04 (Ubuntu on Raspi 25.04), if you use another linux OS, you are probably capable of porting these instructions.
 
 # Keyboard to Joystick wrapper
@@ -247,20 +244,23 @@ $ ./docker_build_wine_hangover_25_04.sh
 
 Note that I recommend to run it "bare metal" with just openbox, see instructions above. 
 
-# Jsmon (Incomplete)
+# Jsmon 
 
-Jsmon is a command line tool intended to pre-check all joystick names and buttons. Device list should update in realtime. It shall also end itself by keeping a button + axis pressed for 2 seconds and output a specific return value (depending on direction / button combo). We will later catch that value by a script and have the base fore an autostart / zero-command-line-image - hopefully later.
+Jsmon is a command line tool intended to pre-check all joystick names and buttons. Device list should update in realtime. It will kill itself by keeping a button + axis pressed for 2 seconds and output a specific return value (depending on direction / button combo). We can catch that value by a script and have the base fore an autostart / zero-command-line-image - hopefully later. 
+An example script is loop_jsmon.sh from the same directory, starting launch1up.sh, you need to adapt at least the directories from the latter one. 
 
 ```
 sudo apt install libncurses5-dev libncursesw5-dev
+cd jsmon
 make
+./loop_jsmon.sh
 ```
 
 # Web2Joy (Beta)
 
 Not enough keyboards / USB Hubs, but some laptops around? No need to install any software, a Webbrowser is all you need.
 
-Host-side all you need is Python and PIP to install some runtime dependencies, all client systems just need to be in the same subnetwork and have to provide a webbrowser and keyboard. 
+At host-side all you need is Python and PIP to install some runtime dependencies, all client systems just need to be in the same subnetwork and have to provide a webbrowser and keyboard. 
 
 I recommend using venv. 
 ```
@@ -275,7 +275,7 @@ python3 -m venv .venv
 
 It will print the IP to the command line.
 
-On your client, use a webbrowser to connect to http://IP.AD.DR.ESS:5000/stick (dont forget to add stick). 
+On your client, use a webbrowser to connect to http://IP.AD.DR.ESS:5000/stick (dont forget to add stick). Under the hood, in your client Browser a Javascrip will open a Websocket connection to the server and transmit key events. Depending on your connection, latency is somewhere between unrecognizable and "still playable". Keys are fixed to Arrow keys and 1,2 for buttons. Sometimes an axes might get stuck, pressing and releasing all directions shold recover. 
 
 
 # Additional Information
@@ -287,11 +287,25 @@ In a time, when a friend and I were supposed to write our thesis', we improved o
 ## Facts 
 
 You might have heared of the Hi-Ten Bomberman, a 10 Player Bomberman version for (Japanese early 90s) analogue high resolution TV's. It was only used for demonstration purposes at fairs and events.
-At time of writing (2025/10), the wikipedia article about Battle Royale Gaming states that the 2000 Japanese film "Battle Royale" was the origin of that term. I Disagree, in a 1997 video of Hi-Ten Bomberman the gaming mode was already called that way, and it provides all the typical principles like looting, last man standing and shrinking level.
+At time of writing (2025/10), the wikipedia article about Battle Royale Gaming states that the 2000 Japanese film "Battle Royale" was the origin of that term. I disagree, as in a 1997 video of Hi-Ten Bomberman the gaming mode was already called that way, and it provides all the typical principles like looting, last man standing and shrinking level.
 
 Its said that Saturn Bomberman comes quite close to Hi-Ten Bomberman. They have implemented an anamorphic widescreen mode, in a way that when you connect the console to a 16:9 CRT and stretch the 4:3 image, everything will be displayed with correct aspect ratio. Should make no difficulties to play it with 10 keyboards...but needs a halfway recent PC.
+
+## Future Options
+
+Depending on time and motivation, I consider working on:
+
+* Minimal, fast booting and autostart-enabled (live) distro, targeting also those Futro-like boxes they throw out on Ebay for 10-20 bucks.
+* Minimal, fast booting and autostart-enabled RaspiImage
+* Fork of Winlator with multiple key2joy instances and patched Wine
+* Fork of Retroarch with key2joy (10 player Saturn Bomberman)
+* Compare Wine-Hangover with emulation the complete x86 build of standard Wine
 
 ## Other implementations
 
 Here is a project to use a RasPi connected to a Windows machine via USB, where the RasPi acts as USB client and provides 10 joysticks to windows. The keyboards are connected to the RasPi.
 https://github.com/benadler/keystick
+
+A complete reimplementation of Atomic Bomberman (Original Game Contets needed) can be found here:
+https://github.com/PascalCorpsman/fpc_atomic
+
