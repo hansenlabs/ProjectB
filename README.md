@@ -7,6 +7,11 @@ Play Atomic Bomberman with up to 10 keyboards on X86/Linux and Raspi 4+.
 This project provides information about running multiplayer games, specifically Atomic Bomberman, on Linux based systems with local massive multiplayer option by connecting 10 USB Keyboards. Beside x86 based systems, thanks to Wine-Hangover it is possible to use RasPi 4 (and probably but untested 5)
 This repo provides tools, patches and resources to do so. Feel free to use & modify it for other games. These instructions are tested on Ubuntu 24.04 (Ubuntu on Raspi 25.04), if you use another linux OS, you are probably capable of porting these instructions.
 
+# Updates
+
+*Build Script for Ubuntu 25.10
+*Bugfix
+
 # Keyboard to Joystick wrapper
 
 ## General Idea
@@ -148,13 +153,13 @@ Before starting openbox+wine, switch to another terminal with for example LCTRL 
 
 ## Lag every 2 seconds
 
-Bomberman probably runs extremely fast and fluid on any X86 PC from the last 15 years, even on Wine/Linux. Nevertheless, if at least 1 (virtual / real) joystick is connected, the game will hang slightly every 2 Seconds, for example on an i5-4200 for about 150 ms. This strange behavior has 2 different causes. Whenever at least one Joystick is present, Atomic Bomberman queries Joystick 0 to Joystick 9, regardless of whether present or not. Wine will recognize invalid queries, and itself queries the host system for an updated list of devices - in a blocking way. Doing that, Wine records a timestamp, and will trigger the next query to host 2 seconds later. As Atomic Bomberman won't be able to detect hotplugged devices anyway and needs to be restarted, this behavior of Wine brings no benefit. 
+Bomberman probably runs extremely fast and fluid on any X86 PC of the last 15 years, even on Wine/Linux. Nevertheless, if at least 1 (virtual / real) joystick is connected, the game will hang slightly every 2 Seconds, for example on an i5-4200 for about 150 ms. This strange behavior has 2 different causes. Whenever at least one Joystick is present, Atomic Bomberman queries Joystick 0 to Joystick 9, regardless of whether present or not. Wine will recognize invalid queries, and itself queries the host system for an updated list of devices - in a blocking way. Doing that, Wine records a timestamp, and will trigger the next query to host 2 seconds later. As Atomic Bomberman won't be able to detect hotplugged devices anyway and needs to be restarted, this behavior of Wine brings no benefit. 
 
 In the Directory wine_patch, you will find a patched joystick.c. Replace original file with mine and build. In case that my instructions are outdated, just diff it to original file from Wine 10.14. 
 
 ## Joystick Name Override in Wine
 
-In older Versions from Wine, the Vendor_ID of the joystick will be forwarded, starting with a version around Wine 7, for some reasons I don't know, that behavior changed and always defaults to "Wine joystick driver". The patch for the bug above also reverts to the old behavior, you rename your keyboard derived virtual joystick like described above and in-game, during choice of players, this name will be displayed.
+In older Versions of Wine, the Vendor_ID of the joystick will be forwarded, starting with a version around Wine 7, for some reasons I don't know, that behavior changed and always defaults to "Wine joystick driver". The patch for the bug above also reverts to the old behavior, you rename your keyboard derived virtual joystick like described above and in-game, during choice of players, this name will be displayed.
 
 ## Bomberman crashing on long Joystick names (fixed)
 
@@ -216,6 +221,10 @@ WINEDLLOVERRIDES="ddraw.dll=n" ~/path/to/wine/wine64-build/wine ./BM.exe (on Way
 
 # Raspberry
 
+Update:
+*Added build instructions for 25.10 below
+*Fixed a bug: foundation images have not been built by the script
+
 You want to build the ultimate multiplayer console? Lets go! 
 We will be doing a custom Wine-Hangover build for Ubuntu 25.04.
 
@@ -245,6 +254,34 @@ $ ./docker_build_wine_hangover_25_04.sh
 ```
 
 Note that I recommend to run it "bare metal" with just openbox, see instructions above. 
+
+## Raspberry 25.10
+
+Starting with Wine 11.0rc2, 25.04 support was purged in favor of 25.10.  
+Build process has changed, as instead of using a cross compiler, an Arm64-based image is used within Github Actions. I replicated this behavior. Make sure to have buildx support in your docker installation. 
+
+Build process is really slow, 7h on an 8-core.
+
+What you do is:
+```
+$ git clone https://github.com/AndreRH/hangover.git
+$ cd hangover
+$ git submodule update --init --recursive
+# Checkout specific tag
+$ git checkout hangover-11.0
+$ cp ~/path_to/ProjectB/wine_patch/joystick.c ./wine/dlls/winmm/joystick.c
+$ cp ~/path_to/ProjectB/scripts/docker_build_wine_hangover_25_10.sh .
+$ ./docker_build_wine_hangover_25_10.sh
+```
+
+While on 25.04 Fex was broken and Box64 was fine, here it is the other way around.
+BOX64 will crash with message "GetSegmentBase does not apply to Wine dlls"
+It also crashes with unpatched Wine. I tried a different game (ElastoMania) with BOX64 and it worked fine. 
+What works is:
+```
+$ HODLL=libwow64fex.dll wine BM.exe
+```
+
 
 # Jsmon 
 

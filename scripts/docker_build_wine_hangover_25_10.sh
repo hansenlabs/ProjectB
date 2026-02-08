@@ -1,13 +1,16 @@
 #!/bin/bash
-MATRIX_OS="ubuntu2504"
-MATRIX_CODENAME="plucky"
+MATRIX_OS="ubuntu2510"
+MATRIX_CODENAME="questing"
 
 HOVERSION="$(git describe --tags | sed "s/hangover-//")"
 #echo "${HOVERSION}"
 
+#Aarch64 Guest Container Support
+docker run --privileged --rm tonistiigi/binfmt --install arm64
+
 #first create foundation Image
 cd .packaging/${MATRIX_OS}
-docker buildx build -t foundation${MATRIX_OS} .
+docker buildx build --platform linux/arm64 -t foundation${MATRIX_OS} .
 cd ../..
 
 cp -r .packaging/${MATRIX_OS}/wine/* wine
@@ -28,7 +31,7 @@ rm wine/debian/changelog.entry wine/debian/changelog.old
 cat wine/debian/changelog
 
 cd wine
-docker build --no-cache -t wine${MATRIX_OS} .
+docker buildx build --platform linux/arm64 --no-cache -t wine${MATRIX_OS} .
 
 #hangover-wine_10.14~plucky_arm64.deb 
 NAME_OF_DEB="hangover-wine_${HOVERSION}~${MATRIX_CODENAME}_arm64.deb"
